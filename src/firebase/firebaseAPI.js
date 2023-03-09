@@ -20,7 +20,7 @@
     Profiles
     - Create a new user profile in database with email (Asynchronous).         T
         createNewUserProfile()
-    - Read a single user profile by user email from database (Asynchronous).   T
+    - Read a single user profile by user email from database (Asynchronous).   F
         readSingleUserProfileByEmail()
     - Read all user profiles from whole database (Asynchronous).               F
         readAllUserProfilesFromWholeDatabase()
@@ -30,9 +30,9 @@
     Files
     - Create a new user file in database with an object (Asynchronous).        T
         createNewUserFile()
-    - Read all user files by user email from database (Asynchronous).          T
+    - Read all user files by user email from database (Asynchronous).          F
         readUserFilesByUserEmail()
-    - Read a single user file by user file ID from database (Asynchronous).    T
+    - Read a single user file by user file ID from database (Asynchronous).    F
         readSingleUserFileByUserFileID()
     - Read all user files from whole database (Asynchronous).                  F
         readAllUserFilesFromWholeDatabase()
@@ -181,10 +181,13 @@ export const readSingleUserProfileByEmail = async (userEmail) => {
       collection(db, "users"),
       where("email", "==", String(userEmail))
     );
-    const userProfile = await getDocs(q);
-    userProfile.forEach((doc) => {
-      return doc;
+    let userProfile;
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      userProfile = doc.data(doc);
     });
+    //console.log(userProfile);
+    return userProfile;
   } catch (error) {
     console.log(error.message);
     return null;
@@ -277,13 +280,16 @@ export const readUserFilesByUserEmail = async (userEmail) => {
 export const readSingleUserFileByUserFileID = async (userFileID) => {
   try {
     const q = query(
-      collection(db, "users"),
+      collection(db, "files"),
       where("id", "==", String(userFileID))
     );
-    const userFile = await getDocs(q);
-    userFile.forEach((doc) => {
-      return doc;
+    let userFile;
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      userFile = doc.data(doc);
     });
+    //console.log(userFile);
+    return userFile;
   } catch (error) {
     console.log(error.message);
     return null;

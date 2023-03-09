@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import Auth from "./components/Auth";
 import Firestore from "./components/Firestore";
 import Storage from "./components/Storage";
+import TestingConsole from "./components/TestingConsole";
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
         <Auth />
         <Firestore />
         <Storage />
+        <TestingConsole/>
       </>
     </StrictMode>
   );
