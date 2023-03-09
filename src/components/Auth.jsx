@@ -17,6 +17,8 @@ const Auth = () => {
           <input type="text" name="email" placeholder="Email" />
           <input type="text" name="password" placeholder="Password" />
           <button>Log in</button>
+          <br />
+          <button>Auto</button>
         </form>
         <div className="v-separator"></div>
         <div className="auth-status">

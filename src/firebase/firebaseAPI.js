@@ -1,4 +1,62 @@
-import { auth } from "../services/firebase/firebaseConfig";
+/* ---------------------------------------- */
+/* || FIREBASE API - V2.0.1 ||
+/*
+/* Last update: 09 03 2023
+/* By Daniel Izef Barreto Tejada
+/*
+/*
+    Status Code: Funtional (F), forTesting (T), Development (D), Empy (E)
+
+    AUTH FUNTIONS
+    - Register a new user in Auth with email (Asynchronous).                   T
+        registerUserByEmailAndPassword()
+    - Log in user from Auth with email (Asynchronous).                         T
+        userLogin()
+    - Log out user from Auth (Asynchronous).                                   T
+        userLogout()
+
+    FIRESTORE FUNTIONS
+
+    Profiles
+    - Create a new user profile in database with email (Asynchronous).         T
+        createNewUserProfile()
+    - Read a single user profile by user email from database (Asynchronous).   T
+        readSingleUserProfileByEmail()
+    - Read all user profiles from whole database (Asynchronous).               F
+        readAllUserProfilesFromWholeDatabase()
+    - Update an user profile on database with email and object (Asynchronous). E
+
+    
+    Files
+    - Create a new user file in database with an object (Asynchronous).        T
+        createNewUserFile()
+    - Read all user files by user email from database (Asynchronous).          T
+        readUserFilesByUserEmail()
+    - Read a single user file by user file ID from database (Asynchronous).    T
+        readSingleUserFileByUserFileID()
+    - Read all user files from whole database (Asynchronous).                  F
+        readAllUserFilesFromWholeDatabase()
+    - Update an user file on database with an object (Asynchronous).           E
+
+    - Delete an user file on database with ID (Asynchronous).                  E
+
+
+    STORAGE FUNTIONS
+    - Upload a photoFile.
+    - Read a photoFile
+    - Delete a photoFile.
+
+    UTILITIES
+    - Compress a photoFile.
+
+    NOTES:
+    - There are two databases on Firestore: (1) "users", (2) "files".
+*/
+
+/* ---------------------------------------- */
+/* || LIBRARY IMPORTS || */
+
+import { auth } from "./firebaseConfig";
 import { db } from "./firebaseConfig";
 import {
   createUserWithEmailAndPassword,
@@ -18,7 +76,7 @@ import {
 /* || AUTH FUNTIONS || */
 
 /**
- * Register a new user in Auth (Asynchronous).
+ * Register a new user in Auth with email (Asynchronous).
  * @param {string} userEmail
  * @param {string} userPassword
  * @author [Daniel Izef Barreto Tejada]
@@ -45,7 +103,7 @@ export const registerUserByEmailAndPassword = async (
 };
 
 /**
- * Log in user from Auth (Asynchronous).
+ * Log in user from Auth with email (Asynchronous).
  * @param {string} userEmail
  * @param {string} userPassword
  * @author [Daniel Izef Barreto Tejada]
@@ -53,15 +111,15 @@ export const registerUserByEmailAndPassword = async (
  * @returns {object} firebaseUser.
  * @public
  */
-const userLogin = async (userEmail, userPassword) => {
+export const userLogin = async (userEmail, userPassword) => {
   try {
     const firebaseUser = await signInWithEmailAndPassword(
       auth,
       userEmail,
       userPassword
     );
+    // console.log(firebaseUser);
     return firebaseUser;
-    console.log(firebaseUser);
   } catch (error) {
     console.log(error.message);
     return null;
@@ -72,10 +130,10 @@ const userLogin = async (userEmail, userPassword) => {
  * Log out user from Auth (Asynchronous).
  * @author [Daniel Izef Barreto Tejada]
  * @version 2.0.1
- * @returns {string} Document ID.
+ * @returns {string} Message.
  * @public
  */
-const userLogout = async () => {
+export const userLogout = async () => {
   try {
     await signOut(auth);
     return "Logged out succesfully.";
@@ -88,17 +146,19 @@ const userLogout = async () => {
 /* ---------------------------------------- */
 /* || FIRESTORE FUNTIONS || */
 
+/* User profiles */
+
 /**
- * Add a new user in database (Asynchronous).
- * @param {object} userDocument
+ * Create a new user profile in database with email (Asynchronous).
+ * @param {object} userProfileDocument
  * @author [Daniel Izef Barreto Tejada]
  * @version 2.0.1
  * @returns {number} Document ID.
  * @public
  */
-export const addNewUser = async (userDocument) => {
+export const createNewUserProfile = async (userProfileDocument) => {
   try {
-    const docRef = await addDoc(collection(db, "users"), userDocument);
+    const docRef = await addDoc(collection(db, "users"), userProfileDocument);
     console.log("Document written with ID: ", docRef.id);
     return docRef.id;
   } catch (error) {
@@ -108,55 +168,155 @@ export const addNewUser = async (userDocument) => {
 };
 
 /**
- * Add a new user in database (Asynchronous).
- * @param {object} userDocument
- * @author [Daniel Izef Barreto Tejada]
- * @version 2.0.1
- * @returns {number} Document ID.
- * @public
- */
-export const addNewUserFile = async (userDocument) => {
-  try {
-    const docRef = await addDoc(collection(db, "users"), userDocument);
-    console.log("Document written with ID: ", docRef.id);
-    return docRef.id;
-  } catch (error) {
-    console.log(error.message);
-    return null;
-  }
-};
-
-// Update File
-
-// Delete File
-
-/**
- * Get all files by user email from database (Asynchronous).
+ * Read a single user profile by user email from database (Asynchronous).
  * @param {string} userEmail
  * @author [Daniel Izef Barreto Tejada]
  * @version 2.0.1
- * @returns {array} userFiles
+ * @returns {object} userProfile
  * @public
  */
-export const getFilesByUserEmail = async (userEmail) => {
+export const readSingleUserProfileByEmail = async (userEmail) => {
   try {
     const q = query(
-      collection(db, "files"),
-      where("email", "==", String(email))
+      collection(db, "users"),
+      where("email", "==", String(userEmail))
     );
-    const querySnapshot = await getDocs(q);
-    let userFiles = [];
-    querySnapshot.forEach((doc) => {
-      //console.log(Object.values(doc.data(doc)));
-      userFiles.push(doc.data(doc));
+    const userProfile = await getDocs(q);
+    userProfile.forEach((doc) => {
+      return doc;
     });
-    //console.log(userFiles);
-    return userFiles;
   } catch (error) {
     console.log(error.message);
     return null;
   }
 };
+
+/**
+ * Read all user profiles from whole database (Asynchronous).
+ * @author [Daniel Izef Barreto Tejada]
+ * @version 2.0.1
+ * @returns {array} userFileDocuments
+ * @public
+ */
+export const readAllUserProfilesFromWholeDatabase = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    //console.log(querySnapshot.docs);
+    let userProfilesDocuments = [];
+    querySnapshot.forEach((doc) => {
+      //console.log(Object.values(doc.data(doc)));
+      userProfilesDocuments.push(doc.data(doc));
+    });
+    //console.log(userProfilesDocuments);
+    return userProfilesDocuments;
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+// Update an user profile on database with email and object (Asynchronous).
+
+/* User files */
+
+/**
+ * Create a new user file in database with an object (Asynchronous).
+ * @param {object} userFileDocument
+ * @author [Daniel Izef Barreto Tejada]
+ * @version 2.0.1
+ * @returns {number} Document ID.
+ * @public
+ */
+export const createNewUserFile = async (userFileDocument) => {
+  try {
+    const docRef = await addDoc(collection(db, "users"), userFileDocument);
+    console.log("Document written with ID: ", docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+/**
+ * Read all user files by user email from database (Asynchronous).
+ * @param {string} userEmail
+ * @author [Daniel Izef Barreto Tejada]
+ * @version 2.0.1
+ * @returns {array} userFileDocuments
+ * @public
+ */
+export const readUserFilesByUserEmail = async (userEmail) => {
+  try {
+    const q = query(
+      collection(db, "files"),
+      where("email", "==", String(userEmail))
+    );
+    const querySnapshot = await getDocs(q);
+    let userFileDocuments = [];
+    querySnapshot.forEach((doc) => {
+      //console.log(Object.values(doc.data(doc)));
+      userFileDocuments.push(doc.data(doc));
+    });
+    //console.log(userFileDocuments);
+    return userFileDocuments;
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+/**
+ * Read a single user file by user file ID from database (Asynchronous).
+ * @param {string} userFileID
+ * @author [Daniel Izef Barreto Tejada]
+ * @version 2.0.1
+ * @returns {object} userFile
+ * @public
+ */
+export const readSingleUserFileByUserFileID = async (userFileID) => {
+  try {
+    const q = query(
+      collection(db, "users"),
+      where("id", "==", String(userFileID))
+    );
+    const userFile = await getDocs(q);
+    userFile.forEach((doc) => {
+      return doc;
+    });
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+/**
+ * Read all user files from whole database (Asynchronous).
+ * @author [Daniel Izef Barreto Tejada]
+ * @version 2.0.1
+ * @returns {array} userFileDocuments
+ * @public
+ */
+export const readAllUserFilesFromWholeDatabase = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "files"));
+    //console.log(querySnapshot.docs);
+    let userFileDocuments = [];
+    querySnapshot.forEach((doc) => {
+      //console.log(Object.values(doc.data(doc)));
+      userFileDocuments.push(doc.data(doc));
+    });
+    //console.log(userFileDocuments);
+    return userFileDocuments;
+  } catch (error) {
+    console.log(error.message);
+    return null;
+  }
+};
+
+// Update an user file on database with an object (Asynchronous).
+
+// Delete an user file on database with ID (Asynchronous).
 
 /* ---------------------------------------- */
 /* || STORAGE FUNTIONS || */
