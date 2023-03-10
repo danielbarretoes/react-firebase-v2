@@ -1,7 +1,7 @@
 /* ---------------------------------------- */
 /* || FIREBASE API - V2.0.1 ||
 /*
-/* Last update: 09 03 2023
+/* Last update: 10 03 2023
 /* By Daniel Izef Barreto Tejada
 /*
 /*
@@ -24,7 +24,9 @@
         readSingleUserProfileByEmail()
     - Read all user profiles from whole database (Asynchronous).               F
         readAllUserProfilesFromWholeDatabase()
-    - Update an user profile on database with email and object (Asynchronous). E
+    - Update an user profile on database with ID and object (Asynchronous).    F
+        updateSingleUserProfleByUserProfileID()
+    - Delete an user profile on database with ID (Asynchronous).               E
 
     
     Files
@@ -36,8 +38,8 @@
         readSingleUserFileByUserFileID()
     - Read all user files from whole database (Asynchronous).                  F
         readAllUserFilesFromWholeDatabase()
-    - Update an user file on database with an object (Asynchronous).           E
-
+    - Update an user file on database with an object (Asynchronous).           F
+        updateSingleUserFileByUserFileID()
     - Delete an user file on database with ID (Asynchronous).                  E
 
 
@@ -51,6 +53,26 @@
 
     NOTES:
     - There are two databases on Firestore: (1) "users", (2) "files".
+
+    OBJECTS SAMPLE
+    - userProfileDocument
+    {
+      id: 
+      email:
+      fisrt:
+      last:
+    }
+
+    - userFileDocument
+    {
+      id: 
+      owner: 
+      name: 
+      category:
+      storage: [
+        {},{},
+      ]
+    }
 */
 
 /* ---------------------------------------- */
@@ -68,7 +90,10 @@ import {
   collection,
   query,
   where,
+  doc,
   getDocs,
+  getDoc,
+  updateDoc,
   //deleteDoc,
 } from "firebase/firestore";
 
@@ -185,6 +210,7 @@ export const readSingleUserProfileByEmail = async (userEmail) => {
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       userProfile = doc.data(doc);
+      //console.log(doc.id);
     });
     //console.log(userProfile);
     return userProfile;
@@ -218,7 +244,60 @@ export const readAllUserProfilesFromWholeDatabase = async () => {
   }
 };
 
-// Update an user profile on database with email and object (Asynchronous).
+/**
+ * Update an user profile on database with ID and object (Asynchronous).
+ * @param {string} userProfileID
+ * @param {object} userProfileUpdateObject
+ * @author [Daniel Izef Barreto Tejada]
+ * @version 2.0.1
+ * @returns {object} userProfile
+ * @public
+ */
+export const updateSingleUserProfleByUserProfileID = async (
+  userProfileID,
+  userProfileUpdateObject
+) => {
+  /* Input validation */
+  if (userProfileID === null || typeof userProfileID !== "string") {
+    console.log("userProfileID is invalid.");
+    return null;
+  }
+  if (
+    userProfileUpdateObject === null ||
+    typeof userProfileUpdateObject !== "object"
+  ) {
+    console.log("userProfileUpdateObject is invalid.");
+    return null;
+  }
+
+  /* Local variables */
+  const docID = userProfileID;
+  const docRef = doc(db, "users", docID);
+
+  /* Execution */
+  try {
+    // Send request.
+    let querySnapshot = await getDoc(docRef);
+    // Check if exists the document.
+    if (querySnapshot.exists()) {
+      //console.log("Document data:", querySnapshot.data());
+      // Make the update with a new object.
+      await updateDoc(docRef, userProfileUpdateObject);
+      // Refreshing the query with the updated document.
+      querySnapshot = await getDoc(docRef);
+      //console.log("Document data:", querySnapshot.data());
+      // Return the response.
+      return querySnapshot.data();
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+// Delete an user profile on database with ID (Asynchronous).
 
 /* User files */
 
@@ -278,21 +357,32 @@ export const readUserFilesByUserEmail = async (userEmail) => {
  * @public
  */
 export const readSingleUserFileByUserFileID = async (userFileID) => {
+  /* Input validation */
+  if (userFileID === null || typeof userFileID !== "string") {
+    console.log("userFileID is invalid.");
+    return null;
+  }
+
+  /* Local variables */
+  const docID = userFileID;
+  const docRef = doc(db, "files", docID);
+
+  /* Execution */
   try {
-    const q = query(
-      collection(db, "files"),
-      where("id", "==", String(userFileID))
-    );
-    let userFile;
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      userFile = doc.data(doc);
-    });
-    //console.log(userFile);
-    return userFile;
+    // Send request.
+    let querySnapshot = await getDoc(docRef);
+    // Check if exists the document.
+    if (querySnapshot.exists()) {
+      console.log("Document data:", querySnapshot.data());
+      // Return the response.
+      return querySnapshot.data();
+    } else {
+      // doc.data() will be undefined in this case.
+      console.log("No such document!");
+      return null;
+    }
   } catch (error) {
     console.log(error.message);
-    return null;
   }
 };
 
@@ -320,9 +410,60 @@ export const readAllUserFilesFromWholeDatabase = async () => {
   }
 };
 
-// Update an user file on database with an object (Asynchronous).
+/**
+ * Update an user file on database with an object by ID (Asynchronous).
+ * @param {string} userFileID
+ * @param {object} userFileUpdateObject
+ * @author [Daniel Izef Barreto Tejada]
+ * @version 2.0.1
+ * @returns {object} userFile
+ * @public
+ */
+export const updateSingleUserFileByUserFileID = async (
+  userFileID,
+  userFileUpdateObject
+) => {
+  /* Input validation */
+  if (userFileID === null || typeof userFileID !== "string") {
+    console.log("userFileID is invalid.");
+    return null;
+  }
+  if (
+    userFileUpdateObject === null ||
+    typeof userFileUpdateObject !== "object"
+  ) {
+    console.log("userFileUpdateObject is invalid.");
+    return null;
+  }
 
-// Delete an user file on database with ID (Asynchronous).
+  /* Local variables */
+  const docID = userFileID;
+  const docRef = doc(db, "files", docID);
+
+  /* Execution */
+  try {
+    // Send request.
+    let querySnapshot = await getDoc(docRef);
+    // Check if exists the document.
+    if (querySnapshot.exists()) {
+      //console.log("Document data:", querySnapshot.data());
+      // Make the update with a new object.
+      await updateDoc(docRef, userFileUpdateObject);
+      // Refreshing the query with the updated document.
+      querySnapshot = await getDoc(docRef);
+      //console.log("Document data:", querySnapshot.data());
+      // Return the response.
+      return querySnapshot.data();
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+// Delete an user file on database by ID (Asynchronous).
 
 /* ---------------------------------------- */
 /* || STORAGE FUNTIONS || */
