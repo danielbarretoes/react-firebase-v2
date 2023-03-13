@@ -33,7 +33,7 @@
     - Create a new user file in database with an object (Asynchronous).        T
         createNewUserFile()
     - Read all user files by user email from database (Asynchronous).          F
-        readUserFilesByUserEmail()
+        readUserFilesByUserEmail()  --> By ID.
     - Read a single user file by user file ID from database (Asynchronous).    F
         readSingleUserFileByUserFileID()
     - Read all user files from whole database (Asynchronous).                  F
@@ -57,7 +57,7 @@
     OBJECTS SAMPLE
     - userProfileDocument
     {
-      id: 
+      pid: 
       email:
       fisrt:
       last:
@@ -65,8 +65,8 @@
 
     - userFileDocument
     {
-      id: 
-      owner: 
+      fid: 
+      pid:
       name: 
       category:
       storage: [
